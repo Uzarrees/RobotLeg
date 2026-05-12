@@ -102,6 +102,7 @@ void loop_main() {
 
 // ========= Animations =========
 void animStraight() {
+  /*========= STRAIGHT =========*/
   float rAngles[4] = {90, 90, 90, 90};
   float lAngles[4] = {90, 90, 90, 90};
   robot.moveRightLeg(rAngles);
@@ -110,16 +111,20 @@ void animStraight() {
 }
 
 void animSquat() {
-  float rAngles[4] = {170, 90, 10, 90};
-  float lAngles[4] = {10, 90, 170, 90};
+  /*========= SQUAT =========*/
+  float rAngles[4] = {90, 10, 90, 170};
+  float lAngles[4] = {90, 170, 90, 10};
   robot.moveRightLeg(rAngles);
   robot.moveLeftLeg(lAngles);
   Serial.println("animSquat");
 }
 
 void animKneeUp() {
-  float angles[4] = {90, 0, 90, 180};
-  robot.moveRightLeg(angles);
+  /*========= LUNGE =========*/
+  float rAngles[4] = {170, 90, 170, 90};
+  float lAngles[4] = {170, 90, 170, 90};
+  robot.moveRightLeg(rAngles);
+  robot.moveLeftLeg(lAngles);
   Serial.println("animKneeUp");
 }
 

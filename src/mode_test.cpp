@@ -1,10 +1,15 @@
+// ======================================================================
+// RUN_MODE 2: Ease movement and animation player
+// - everything is very convoluted, the code must be cleaned out 
+// ======================================================================
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
 
-constexpr uint8_t NUM_JOINTS = 3;
-constexpr uint8_t CH[NUM_JOINTS] = {0, 1, 2};  // PCA9685 channels
+constexpr uint8_t NUM_JOINTS = 8;
+constexpr uint8_t CH[NUM_JOINTS] = {0, 1, 2, 3, 4, 5, 6, 7};  // PCA9685 channels
 
 Adafruit_PWMServoDriver pwmTest = Adafruit_PWMServoDriver();
 
@@ -14,13 +19,27 @@ struct Pose {
 };
 
 // ---------- EDIT THESE KEYFRAMES ----------
-Pose sequence[] = {
-  {{410, 520, 600}, 600},   // pose 0
-  {{480, 560, 520}, 600},   // pose 1
-  {{520, 480, 610}, 600},   // pose 2
-  {{410, 520, 600}, 600},   // back to pose 0
+Pose seqTest[] = {
+  {{340, 312, 330, 367, 312, 335, 381, 326}, 2000},  // straight
+  {{451, 312, 228, 367, 312, 228, 381, 437}, 2000},  // shift left
+  {{367, 312, 284, 367, 312, 228, 381, 409}, 2000},  // prep step
+  {{367, 312, 284, 367, 312, 228, 381, 409}, 2000},  // right step
+  {{367, 312, 284, 367, 312, 228, 381, 409}, 2000},  // hold
 };
-constexpr uint8_t SEQ_LEN = sizeof(sequence) / sizeof(sequence[0]);
+
+Pose seqWalk[] = {
+  {{350, 312, 330, 367, 312, 335, 381, 330}, 1000},  // straight
+  {{350, 173, 330, 451, 230, 335, 506, 330}, 1000},  // knees bent
+  {{350, 187, 330, 451, 230, 335, 492, 330}, 500},  // trans
+  {{350, 312, 330, 367, 312, 335, 381, 330}, 1000},  // straight
+  {{562, 355, 117, 340, 340, 562, 340, 117}, 2000},  // knees bent
+  {{562, 355, 104, 340, 340, 576, 340, 117}, 500},  // trans
+  {{350, 312, 330, 367, 312, 335, 381, 330}, 3000},  // straight
+};
+
+
+
+constexpr uint8_t SEQ_LEN = sizeof(seqTest) / sizeof(seqTest[0]);
 
 // ---------- Player state ----------
 Pose startPose;         // where we started this segment
@@ -53,7 +72,7 @@ void applyPoseInstant(const Pose& p) {
 void beginSegment(uint8_t nextIndex) {
   // Start pose = current output (we use last target as "current" for simplicity)
   startPose = targetPose;
-  targetPose = sequence[nextIndex];
+  targetPose = seqTest[nextIndex];
 
   segmentStart = millis();
   segmentDuration = targetPose.duration_ms;
@@ -61,13 +80,16 @@ void beginSegment(uint8_t nextIndex) {
 }
 
 void setup_test() {
+  // set up serial comunication
   Serial.begin(115200);
+
+  // set up PCA board
   Wire.begin();
   pwmTest.begin();
   pwmTest.setPWMFreq(50);
 
   // Start at first pose
-  targetPose = sequence[0];
+  targetPose = seqTest[0];
   applyPoseInstant(targetPose);
 
   segmentStart = millis();
