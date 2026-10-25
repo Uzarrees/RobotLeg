@@ -1,7 +1,5 @@
 #include <Arduino.h>
-#include "mode_main.h"
 #include "mode_test.h"
-#include "mode_testPose.h"
 
 // default RUN_MODE is 1
 #ifndef RUN_MODE
